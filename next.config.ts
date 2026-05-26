@@ -8,6 +8,19 @@ const requireFromConfig = createRequire(import.meta.url);
 const pdfWorkerSource = requireFromConfig.resolve("pdfjs-dist/legacy/build/pdf.worker.mjs");
 const copyPdfWorkerPluginName = "CopyPdfJsWorkerPlugin";
 
+type ServerCompiler = {
+  options: {
+    output: {
+      path?: string;
+    };
+  };
+  hooks: {
+    afterEmit: {
+      tap: (name: string, callback: () => void) => void;
+    };
+  };
+};
+
 const nextConfig: NextConfig = {
   outputFileTracingRoot: process.cwd(),
   // pdf.js resolves these at runtime, so Vercel's file tracer needs explicit includes.
@@ -21,7 +34,7 @@ const nextConfig: NextConfig = {
   webpack(config, { isServer }) {
     if (isServer) {
       config.plugins.push({
-        apply(compiler) {
+        apply(compiler: ServerCompiler) {
           compiler.hooks.afterEmit.tap(copyPdfWorkerPluginName, () => {
             const outputPath = compiler.options.output.path;
             if (!outputPath) {
