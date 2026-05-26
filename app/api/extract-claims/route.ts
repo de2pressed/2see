@@ -8,7 +8,7 @@ import {
   extractClaimsResponseSchema,
   type ExtractedClaim,
 } from "@/lib/schemas";
-import { delay } from "@/utils/async";
+import { DEFAULT_MODEL } from "@/lib/models";
 import {
   buildCapNotice,
   prepareClaims,
@@ -21,9 +21,16 @@ import {
 } from "@/utils/files";
 import { readCachedClaims, writeCachedClaims } from "@/lib/claim-cache";
 import { extractClaimsWithRetries } from "@/services/openai";
-import { extractPdfText } from "@/services/pdf";
+import { extractPdfText, type PageBlock } from "@/services/pdf";
+
+const EXTRACTION_CONCURRENCY = 2;
+const EXTRACTION_ROUTE_BUDGET_MS = 52_000;
+const MIN_PAGE_EXTRACTION_BUDGET_MS = 12_000;
+const MAX_PAGE_TEXT_CHARS = 12_000;
 
 export async function POST(request: Request) {
+  const startedAt = Date.now();
+
   try {
     const formData = await request.formData();
     const file = formData.get("file");
@@ -70,32 +77,8 @@ export async function POST(request: Request) {
     const pages = await extractPdfText(pdfBuffer);
     const textLength = pages.reduce((acc, p) => acc + p.text.length, 0);
 
-    const isFree = true;
-    let extractedClaims: ExtractedClaim[] = [];
-
-    if (isFree) {
-      // Sequential processing with safety delay for free models
-      for (let i = 0; i < pages.length; i++) {
-        const pageClaims = await extractClaimsWithRetries(
-          pages[i].text,
-          parsedRequest.data.model,
-          pages[i].pageNumber,
-        );
-        extractedClaims = extractedClaims.concat(pageClaims);
-        if (i < pages.length - 1) {
-          await delay(2000); // 2 seconds safety delay between chunks
-        }
-      }
-    } else {
-      // Parallel execution for paid models
-      extractedClaims = (
-        await Promise.all(
-          pages.map((page) =>
-            extractClaimsWithRetries(page.text, parsedRequest.data.model, page.pageNumber),
-          ),
-        )
-      ).flat();
-    }
+    const extraction = await extractClaimsFromPages(pages, startedAt);
+    const extractedClaims = extraction.claims;
 
     const prepared = prepareClaims(extractedClaims);
     writeCachedClaims(pdfBuffer, parsedRequest.data.model, prepared.claims);
@@ -107,7 +90,9 @@ export async function POST(request: Request) {
       totalClaimsFound: prepared.totalClaimsFound,
       claims: prepared.claims,
       wasCapped: prepared.wasCapped,
-      capNotice: buildCapNotice(prepared),
+      capNotice: extraction.skippedPages > 0 || extraction.failedPages > 0
+        ? buildPartialExtractionNotice(extraction)
+        : buildCapNotice(prepared),
     });
 
     return NextResponse.json(response);
@@ -127,4 +112,79 @@ export async function POST(request: Request) {
       { status },
     );
   }
+}
+
+async function extractClaimsFromPages(
+  pages: PageBlock[],
+  startedAt: number,
+): Promise<{
+  claims: ExtractedClaim[];
+  attemptedPages: number;
+  failedPages: number;
+  skippedPages: number;
+}> {
+  const deadline = startedAt + EXTRACTION_ROUTE_BUDGET_MS;
+  const claims: ExtractedClaim[] = [];
+  const errors: Error[] = [];
+  let attemptedPages = 0;
+  let skippedPages = 0;
+  let nextPageIndex = 0;
+
+  async function worker() {
+    while (nextPageIndex < pages.length) {
+      if (deadline - Date.now() < MIN_PAGE_EXTRACTION_BUDGET_MS) {
+        skippedPages += pages.length - nextPageIndex;
+        nextPageIndex = pages.length;
+        return;
+      }
+
+      const page = pages[nextPageIndex];
+      nextPageIndex += 1;
+      attemptedPages += 1;
+
+      try {
+        const pageClaims = await extractClaimsWithRetries(
+          page.text.slice(0, MAX_PAGE_TEXT_CHARS),
+          DEFAULT_MODEL,
+          page.pageNumber,
+          { maxAttempts: 1 },
+        );
+        claims.push(...pageClaims);
+      } catch (error) {
+        const nextError = error instanceof Error ? error : new Error(String(error));
+        errors.push(nextError);
+        console.warn(`Claim extraction failed for page ${page.pageNumber}:`, nextError.message);
+      }
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(EXTRACTION_CONCURRENCY, pages.length) }, () => worker()),
+  );
+
+  if (claims.length === 0 && errors.length > 0) {
+    throw errors[0];
+  }
+
+  return {
+    claims,
+    attemptedPages,
+    failedPages: errors.length,
+    skippedPages,
+  };
+}
+
+function buildPartialExtractionNotice(extraction: {
+  attemptedPages: number;
+  failedPages: number;
+  skippedPages: number;
+}): string {
+  const details = [
+    extraction.failedPages > 0 ? `${extraction.failedPages} page extraction failed` : "",
+    extraction.skippedPages > 0 ? `${extraction.skippedPages} pages skipped to avoid Vercel timeout` : "",
+  ].filter(Boolean);
+
+  return `Partial extraction completed from ${extraction.attemptedPages} page${
+    extraction.attemptedPages === 1 ? "" : "s"
+  }: ${details.join("; ")}.`;
 }

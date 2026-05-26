@@ -102,6 +102,7 @@ export async function extractPdfText(buffer: ArrayBuffer): Promise<PageBlock[]> 
     data: new Uint8Array(buffer.slice(0)),
     disableFontFace: true,
     useSystemFonts: true,
+    verbosity: pdfjs.VerbosityLevel.ERRORS,
   });
 
   const document = await loadingTask.promise;

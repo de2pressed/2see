@@ -98,6 +98,8 @@ const springTransition = {
   mass: 0.8,
 };
 
+const VERIFY_CLAIMS_PER_REQUEST = 3;
+
 export function VerificationApp() {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -272,7 +274,10 @@ export function VerificationApp() {
         body: formData,
         signal: controller.signal,
       });
-      const payload = (await response.json()) as ExtractResponse | { error: string };
+      const payload = await readJsonResponse<ExtractResponse | { error: string }>(
+        response,
+        "Claim extraction failed.",
+      );
 
       if (!response.ok) {
         throw new Error("error" in payload ? payload.error : "Extraction failed.");
@@ -326,7 +331,7 @@ export function VerificationApp() {
 
     const decoder = new TextDecoder();
     let completed = 0;
-    const claimChunks = chunkArray(extracted.claims, 8);
+    const claimChunks = chunkArray(extracted.claims, VERIFY_CLAIMS_PER_REQUEST);
 
     for (let chunkIndex = 0; chunkIndex < claimChunks.length; chunkIndex += 1) {
       if (isCancelledRef.current) {
@@ -347,9 +352,10 @@ export function VerificationApp() {
       });
 
       if (!response.ok || !response.body) {
-        const payload = (await response.json().catch(() => null)) as
-          | { error?: string }
-          | null;
+        const payload = await readJsonResponse<{ error?: string }>(
+          response,
+          "Verification failed to start.",
+        ).catch(() => null);
         throw new Error(payload?.error ?? "Verification failed to start.");
       }
 
@@ -481,9 +487,10 @@ export function VerificationApp() {
       });
 
       if (!response.ok) {
-        const payload = (await response.json().catch(() => null)) as
-          | { error?: string }
-          | null;
+        const payload = await readJsonResponse<{ error?: string }>(
+          response,
+          "PDF export failed.",
+        ).catch(() => null);
         throw new Error(payload?.error ?? "PDF export failed.");
       }
 
@@ -577,7 +584,10 @@ export function VerificationApp() {
       });
 
       if (!response.ok || !response.body) {
-        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+        const payload = await readJsonResponse<{ error?: string }>(
+          response,
+          "Verification failed.",
+        ).catch(() => null);
         throw new Error(payload?.error ?? "Verification failed.");
       }
 
@@ -1374,6 +1384,25 @@ function parseStreamEvent(part: string): StreamEvent | null {
     return JSON.parse(line.replace(/^data:\s*/, "")) as StreamEvent;
   } catch {
     return null;
+  }
+}
+
+async function readJsonResponse<T>(response: Response, fallbackMessage: string): Promise<T> {
+  const text = await response.text();
+
+  if (!text.trim()) {
+    throw new Error(fallbackMessage);
+  }
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    if (response.status === 504 || /timed out|timeout|runtime/i.test(text)) {
+      throw new Error("The request timed out on Vercel before the server returned JSON.");
+    }
+
+    const cleaned = text.replace(/\s+/g, " ").trim();
+    throw new Error(cleaned ? cleaned.slice(0, 180) : fallbackMessage);
   }
 }
 

@@ -26,6 +26,7 @@ export type DecisionPath = "guardrail" | "llm" | "fallback" | "knowledge";
 const BACKOFF_MS = [2_000, 4_000, 8_000];
 const MAX_RATE_LIMIT_WAIT_MS = 60_000;
 const FAST_FAIL_RATE_LIMIT_AFTER_MS = 15_000;
+const EXTRACTION_REQUEST_TIMEOUT_MS = 25_000;
 const MAX_SEARCH_RESULTS_PER_CLAIM = 8;
 const MAX_SEARCH_STEPS_DEFAULT = 4;
 const SEARCH_STEP_CONCURRENCY = 2;
@@ -543,8 +544,10 @@ export async function extractClaimsWithOpenAI(
       { role: "system", content: systemMessage },
       { role: "user", content: userPrompt },
     ],
-    max_tokens: 8192,
+    max_tokens: 4096,
     ...EXTRACTION_COMPLETION_PARAMS,
+  }, {
+    timeout: EXTRACTION_REQUEST_TIMEOUT_MS,
   });
 
   const raw = response.choices[0]?.message?.content || "";
@@ -650,15 +653,18 @@ export async function extractClaimsWithRetries(
   text: string,
   initialModel: OpenAIModel,
   pageNumber?: number,
+  options: { maxAttempts?: number } = {},
 ): Promise<ExtractedClaim[]> {
-  for (let attempt = 0; attempt <= BACKOFF_MS.length; attempt += 1) {
+  const maxAttempts = Math.max(1, options.maxAttempts ?? BACKOFF_MS.length + 1);
+
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     try {
       return await extractClaimsWithOpenAI(text, initialModel, pageNumber);
     } catch (error) {
       if (isRateLimitError(error)) {
         const msg = summarizeRateLimitReason(error);
 
-        if (shouldFastFailRateLimit(error) || attempt === BACKOFF_MS.length) {
+        if (shouldFastFailRateLimit(error) || attempt === maxAttempts - 1) {
           throw new Error(`Rate limit reached during claim extraction: ${msg}`);
         }
         console.warn(`Rate limit reached on ${initialModel}. Retrying after delay...`);
