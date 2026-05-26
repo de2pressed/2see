@@ -1,15 +1,9 @@
-import { createRequire } from "node:module";
-import { pathToFileURL } from "node:url";
-
 import { TEXT_EXTRACTION_ERROR } from "@/utils/files";
 
 export interface PageBlock {
   pageNumber: number;
   text: string;
 }
-
-const fallbackRequire = createRequire(import.meta.url);
-const PDF_WORKER_MODULE = ["pdfjs-dist", "legacy", "build", "pdf.worker.mjs"].join("/");
 
 type PositionedTextItem = {
   str: string;
@@ -102,7 +96,6 @@ function polyfillBrowserAPIs(): void {
 export async function extractPdfText(buffer: ArrayBuffer): Promise<PageBlock[]> {
   polyfillBrowserAPIs();
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  configurePdfWorker(pdfjs);
 
   const loadingTask = pdfjs.getDocument({
     // Copy bytes; pdf.js may transfer the underlying ArrayBuffer to its worker.
@@ -131,22 +124,6 @@ export async function extractPdfText(buffer: ArrayBuffer): Promise<PageBlock[]> 
   }
 
   return pages;
-}
-
-function configurePdfWorker(pdfjs: typeof import("pdfjs-dist/legacy/build/pdf.mjs")): void {
-  try {
-    const workerPath = resolvePdfWorkerPath();
-    pdfjs.GlobalWorkerOptions.workerSrc = pathToFileURL(workerPath).toString();
-  } catch (error) {
-    console.warn("pdf.js worker resolution failed; falling back to pdfjs-dist default.", error);
-  }
-}
-
-function resolvePdfWorkerPath(): string {
-  const runtimeModule = process.getBuiltinModule?.("module");
-  const runtimeRequire = runtimeModule?.createRequire(import.meta.url) ?? fallbackRequire;
-
-  return runtimeRequire.resolve(PDF_WORKER_MODULE);
 }
 
 function buildContextualPageText(items: unknown[]): string {
