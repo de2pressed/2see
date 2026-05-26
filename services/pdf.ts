@@ -14,7 +14,89 @@ type PositionedTextItem = {
   height: number;
 };
 
+function polyfillBrowserAPIs(): void {
+  if (typeof globalThis.DOMMatrix === "undefined") {
+    class DOMMatrixPolyfill {
+      a = 1;
+      b = 0;
+      c = 0;
+      d = 1;
+      e = 0;
+      f = 0;
+
+      constructor(init?: string | number[] | Float64Array | Float32Array) {
+        if (init) {
+          const m = typeof init === "string"
+            ? init.replace(/matrix/i, "").replace(/[()]/g, "").trim().split(/[,\s]+/).map(Number)
+            : Array.from(init);
+          if (m.length >= 6) {
+            this.a = m[0]; this.b = m[1]; this.c = m[2]; this.d = m[3]; this.e = m[4]; this.f = m[5];
+          }
+        }
+      }
+
+      multiplySelf(other: DOMMatrixPolyfill) { return this; }
+      preMultiplySelf(other: DOMMatrixPolyfill) { return this; }
+      translateSelf(x: number, y: number) { return this; }
+      scaleSelf(x: number, y: number) { return this; }
+      invertSelf() { return this; }
+      translate(x: number, y: number) { return this; }
+      scale(x: number, y: number) { return this; }
+      rotateFromVectorSelf(x: number, y: number) { return this; }
+    }
+    (globalThis as unknown as Record<string, unknown>).DOMMatrix = DOMMatrixPolyfill;
+  }
+
+  if (typeof globalThis.DOMMatrixReadOnly === "undefined") {
+    class DOMMatrixReadOnlyPolyfill {
+      a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
+
+      constructor(init?: string | number[]) {
+        if (init) {
+          const m = typeof init === "string"
+            ? init.replace(/matrix/i, "").replace(/[()]/g, "").trim().split(/[,\s]+/).map(Number)
+            : init;
+          if (m.length >= 6) {
+            this.a = m[0]; this.b = m[1]; this.c = m[2]; this.d = m[3]; this.e = m[4]; this.f = m[5];
+          }
+        }
+      }
+    }
+    (globalThis as unknown as Record<string, unknown>).DOMMatrixReadOnly = DOMMatrixReadOnlyPolyfill;
+  }
+
+  if (typeof globalThis.ImageData === "undefined") {
+    class ImageDataPolyfill {
+      width: number;
+      height: number;
+      data: Uint8ClampedArray;
+
+      constructor(width: number, height: number) {
+        this.width = width;
+        this.height = height;
+        this.data = new Uint8ClampedArray(width * height * 4);
+      }
+    }
+    (globalThis as unknown as Record<string, unknown>).ImageData = ImageDataPolyfill as unknown as typeof ImageData;
+  }
+
+  if (typeof globalThis.Path2D === "undefined") {
+    class Path2DPolyfill {
+      addPath() { /* noop */ }
+      closePath() { /* noop */ }
+      moveTo() { /* noop */ }
+      lineTo() { /* noop */ }
+      arc() { /* noop */ }
+      bezierCurveTo() { /* noop */ }
+      quadraticCurveTo() { /* noop */ }
+      rect() { /* noop */ }
+    }
+    (globalThis as unknown as Record<string, unknown>).Path2D = Path2DPolyfill as unknown as typeof Path2D;
+  }
+}
+
 export async function extractPdfText(buffer: ArrayBuffer): Promise<PageBlock[]> {
+  polyfillBrowserAPIs();
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
   
   // Explicitly set the worker source to the absolute path of pdf.worker.mjs
