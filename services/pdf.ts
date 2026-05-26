@@ -8,7 +8,8 @@ export interface PageBlock {
   text: string;
 }
 
-const pdfWorkerRequire = createRequire(import.meta.url);
+const fallbackRequire = createRequire(import.meta.url);
+const PDF_WORKER_MODULE = ["pdfjs-dist", "legacy", "build", "pdf.worker.mjs"].join("/");
 
 type PositionedTextItem = {
   str: string;
@@ -134,11 +135,18 @@ export async function extractPdfText(buffer: ArrayBuffer): Promise<PageBlock[]> 
 
 function configurePdfWorker(pdfjs: typeof import("pdfjs-dist/legacy/build/pdf.mjs")): void {
   try {
-    const workerPath = pdfWorkerRequire.resolve("pdfjs-dist/legacy/build/pdf.worker.mjs");
+    const workerPath = resolvePdfWorkerPath();
     pdfjs.GlobalWorkerOptions.workerSrc = pathToFileURL(workerPath).toString();
   } catch (error) {
     console.warn("pdf.js worker resolution failed; falling back to pdfjs-dist default.", error);
   }
+}
+
+function resolvePdfWorkerPath(): string {
+  const runtimeModule = process.getBuiltinModule?.("module");
+  const runtimeRequire = runtimeModule?.createRequire(import.meta.url) ?? fallbackRequire;
+
+  return runtimeRequire.resolve(PDF_WORKER_MODULE);
 }
 
 function buildContextualPageText(items: unknown[]): string {
