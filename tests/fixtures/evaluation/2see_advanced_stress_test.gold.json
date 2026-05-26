@@ -1,0 +1,29 @@
+{
+  "sourceFile": "2see_advanced_stress_test.pdf",
+  "claims": [
+    {
+      "normalizedClaim": "openai reached 200 million weekly active chatgpt users in 2024",
+      "verdict": "Verified"
+    },
+    {
+      "normalizedClaim": "apple fully replaced google search with ai generated search in safari in 2025",
+      "verdict": "False",
+      "forbiddenVerdicts": ["Verified", "Unverifiable"]
+    },
+    {
+      "normalizedClaim": "tesla became the world s largest company by revenue in 2024",
+      "verdict": "False",
+      "forbiddenVerdicts": ["Verified", "Unverifiable"]
+    },
+    {
+      "normalizedClaim": "google introduced ai overviews broadly in search in 2024",
+      "verdict": "Verified",
+      "forbiddenVerdicts": ["Unverifiable"]
+    },
+    {
+      "normalizedClaim": "perplexity ai surpassed google search in global market share in 2025",
+      "verdict": "False",
+      "forbiddenVerdicts": ["Verified", "Unverifiable"]
+    }
+  ]
+}

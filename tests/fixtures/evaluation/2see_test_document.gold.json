@@ -1,0 +1,29 @@
+{
+  "sourceFile": "2see_test_document.pdf",
+  "claims": [
+    {
+      "normalizedClaim": "openai launched chatgpt publicly in november 2022",
+      "verdict": "Verified"
+    },
+    {
+      "normalizedClaim": "the global ai market reached exactly $1 2t in 2023",
+      "verdict": "False",
+      "forbiddenVerdicts": ["Verified", "Unverifiable"]
+    },
+    {
+      "normalizedClaim": "india s ai market was valued at $20b in 2022",
+      "verdict": "False",
+      "forbiddenVerdicts": ["Verified"]
+    },
+    {
+      "normalizedClaim": "quantum computers are now faster than all classical computers for every task",
+      "verdict": "False",
+      "forbiddenVerdicts": ["Verified", "Unverifiable"]
+    },
+    {
+      "normalizedClaim": "perplexity ai surpassed google search in global market share in 2025",
+      "verdict": "False",
+      "forbiddenVerdicts": ["Verified", "Unverifiable"]
+    }
+  ]
+}

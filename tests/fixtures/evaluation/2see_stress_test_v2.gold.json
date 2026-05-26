@@ -1,0 +1,30 @@
+{
+  "sourceFile": "2see_stress_test_v2.pdf",
+  "claims": [
+    {
+      "normalizedClaim": "openai s gpt 4 was released to the public in march 2022",
+      "verdict": "Inaccurate",
+      "forbiddenVerdicts": ["Verified", "Unverifiable"]
+    },
+    {
+      "normalizedClaim": "chatgpt surpassed 200 million weekly active users in q2 2023",
+      "verdict": "Inaccurate",
+      "forbiddenVerdicts": ["Verified", "Unverifiable"]
+    },
+    {
+      "normalizedClaim": "the global artificial intelligence market reached a total valuation of $1 87t in 2023",
+      "verdict": "False",
+      "forbiddenVerdicts": ["Verified", "Unverifiable"]
+    },
+    {
+      "normalizedClaim": "amd s mi300x accelerator captured an estimated 18% of the ai training chip market within six months of launch",
+      "allowedVerdicts": ["False", "Inaccurate"],
+      "verdict": "False",
+      "forbiddenVerdicts": ["Verified", "Unverifiable"]
+    },
+    {
+      "normalizedClaim": "microsoft initially committed $1b to openai in 2019",
+      "verdict": "Verified"
+    }
+  ]
+}

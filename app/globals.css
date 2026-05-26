@@ -1,26 +1,127 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: oklch(98.6% 0.006 115);
+  --foreground: oklch(19% 0.018 125);
+  --card: oklch(97.2% 0.008 115);
+  --muted: oklch(92.5% 0.012 115);
+  --muted-foreground: oklch(46% 0.018 125);
+  --border: oklch(84% 0.014 115);
+  --accent: oklch(48% 0.05 126);
+  --ring: var(--accent);
+  --destructive: oklch(56% 0.18 28);
+  --destructive-foreground: oklch(98% 0.006 115);
+  --ambient-a: oklch(78% 0.08 135 / 0.28);
+  --ambient-b: oklch(78% 0.055 45 / 0.2);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-accent: var(--accent);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: oklch(18% 0.014 125);
+  --foreground: oklch(94% 0.009 115);
+  --card: oklch(22% 0.015 125);
+  --muted: oklch(28% 0.018 125);
+  --muted-foreground: oklch(72% 0.014 115);
+  --border: oklch(35% 0.018 125);
+  --accent: oklch(84% 0.055 132); /* Lighter accent color for dark mode */
+  --ring: var(--accent);
+  --destructive: oklch(60% 0.18 28);
+  --destructive-foreground: oklch(96% 0.008 115);
+  --ambient-a: oklch(60% 0.06 145 / 0.18);
+  --ambient-b: oklch(68% 0.05 55 / 0.12);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
+
+::selection {
+  background: oklch(74% 0.08 132 / 0.35);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes shimmer-sweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-overlay-running {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(75% 0.15 140 / 0.4) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-sweep 1.5s infinite linear;
+}
+
+.shimmer-overlay-verified {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(80% 0.15 140 / 0.6) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-sweep 1.5s infinite linear;
+}
+
+.shimmer-overlay-inaccurate {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(80% 0.15 70 / 0.6) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-sweep 1.5s infinite linear;
+}
+
+.shimmer-overlay-false {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(75% 0.18 28 / 0.6) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-sweep 1.5s infinite linear;
+}
+
+.shimmer-overlay-unverifiable {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(80% 0.05 250 / 0.5) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-sweep 1.5s infinite linear;
+}
+

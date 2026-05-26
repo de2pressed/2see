@@ -1,0 +1,4 @@
+# 2see is a Next.js/TypeScript application.
+# There are no Python runtime dependencies for the app.
+# Install Node dependencies with:
+#   npm ci

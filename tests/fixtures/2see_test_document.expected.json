@@ -1,0 +1,81 @@
+{
+  "sourceFile": "2see_test_document.pdf",
+  "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+  "claims": [
+    {
+      "normalizedClaim": "openai launched chatgpt publicly in november 2022",
+      "verdict": "Verified",
+      "minConfidence": 70
+    },
+    {
+      "normalizedClaim": "the global ai market reached exactly $1 2t in 2023",
+      "verdict": "False",
+      "forbiddenVerdicts": ["Verified", "Unverifiable"]
+    },
+    {
+      "normalizedClaim": "mckinsey estimated that generative ai could add trillions of dollars annually to the global economy",
+      "verdict": "Verified",
+      "minConfidence": 70
+    },
+    {
+      "normalizedClaim": "india s ai market was valued at $20b in 2022",
+      "verdict": "False",
+      "forbiddenVerdicts": ["Verified"]
+    },
+    {
+      "normalizedClaim": "75 percent of fortune 500 companies deployed generative ai systems in 2021",
+      "verdict": "Inaccurate",
+      "allowedVerdicts": ["Inaccurate", "False"]
+    },
+    {
+      "normalizedClaim": "gpt 4 was announced by openai in march 2023",
+      "verdict": "Verified",
+      "minConfidence": 70
+    },
+    {
+      "normalizedClaim": "gemini 2 5 flash reduces all inference costs by 90 percent compared to gemini 1 5 flash",
+      "verdict": "Inaccurate",
+      "allowedVerdicts": ["Inaccurate", "False"]
+    },
+    {
+      "normalizedClaim": "transformer architectures were introduced in the paper attention is all you need",
+      "verdict": "Verified",
+      "minConfidence": 70
+    },
+    {
+      "normalizedClaim": "quantum computers are now faster than all classical computers for every task",
+      "verdict": "False",
+      "forbiddenVerdicts": ["Verified", "Unverifiable"]
+    },
+    {
+      "normalizedClaim": "nvidia briefly became one of the world s most valuable companies in 2024",
+      "verdict": "Verified",
+      "minConfidence": 70
+    },
+    {
+      "normalizedClaim": "google introduced ai overviews in search in 2024",
+      "verdict": "Verified",
+      "minConfidence": 70
+    },
+    {
+      "normalizedClaim": "95 percent of developers now use ai coding assistants daily",
+      "verdict": "Inaccurate",
+      "allowedVerdicts": ["Inaccurate", "False"]
+    },
+    {
+      "normalizedClaim": "github copilot was first released in technical preview in 2021",
+      "verdict": "Verified",
+      "minConfidence": 70
+    },
+    {
+      "normalizedClaim": "perplexity ai surpassed google search in global market share in 2025",
+      "verdict": "False",
+      "forbiddenVerdicts": ["Verified", "Unverifiable"]
+    },
+    {
+      "normalizedClaim": "ai generated misinformation became a major concern during recent elections worldwide",
+      "verdict": "Verified",
+      "minConfidence": 70
+    }
+  ]
+}
