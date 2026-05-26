@@ -875,9 +875,9 @@ export function VerificationApp() {
                           type="button"
                           onClick={analyzeDocument}
                           disabled={!file}
-                          className="bg-accent hover:bg-accent/90 text-background border border-accent/20 shadow-sm disabled:opacity-45"
+                          className="bg-emerald-950 hover:bg-emerald-900 text-emerald-50 border border-emerald-900/20 shadow-sm disabled:opacity-45"
                         >
-                          <Sparkles className="h-4 w-4 text-background/80" />
+                          <Sparkles className="h-4 w-4 text-emerald-50/80" />
                           Analyze
                         </Button>
                       )}
@@ -1360,7 +1360,7 @@ function Signal({
         <div
           className={cn(
             "h-full rounded-full transition-all duration-500",
-            inverse ? "bg-amber-500" : "bg-accent",
+            inverse ? "bg-amber-500" : "bg-emerald-950",
           )}
           style={{ width: `${value}%` }}
         />

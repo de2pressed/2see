@@ -23,7 +23,7 @@ export function Progress({
       aria-valuenow={bounded}
     >
       <div
-        className="h-full rounded-full bg-accent transition-all duration-500 ease-out"
+        className="h-full rounded-full bg-emerald-950 transition-all duration-500 ease-out"
         style={{ width: `${bounded}%` }}
       />
     </div>
