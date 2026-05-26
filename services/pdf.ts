@@ -15,7 +15,7 @@ type PositionedTextItem = {
 };
 
 export async function extractPdfText(buffer: ArrayBuffer): Promise<PageBlock[]> {
-  const pdfjs = await import("pdfjs-dist/build/pdf.mjs");
+  const pdfjs: any = await import("pdfjs-dist/build/pdf.mjs");
   
   // Explicitly set the worker source to the absolute path of pdf.worker.mjs
 
@@ -26,7 +26,7 @@ const loadingTask = pdfjs.getDocument({
   useSystemFonts: false,
   isEvalSupported: false,
   useWorkerFetch: false,
-});
+}); 
 
   const document = await loadingTask.promise;
   const pages: PageBlock[] = [];
