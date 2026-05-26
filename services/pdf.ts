@@ -1,5 +1,3 @@
-import path from "path";
-import { pathToFileURL } from "url";
 import { TEXT_EXTRACTION_ERROR } from "@/utils/files";
 
 export interface PageBlock {
@@ -98,16 +96,6 @@ function polyfillBrowserAPIs(): void {
 export async function extractPdfText(buffer: ArrayBuffer): Promise<PageBlock[]> {
   polyfillBrowserAPIs();
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  
-  // Explicitly set the worker source to the absolute path of pdf.worker.mjs
-  pdfjs.GlobalWorkerOptions.workerSrc = pathToFileURL(path.join(
-    process.cwd(),
-    "node_modules",
-    "pdfjs-dist",
-    "legacy",
-    "build",
-    "pdf.worker.mjs"
-  )).toString();
 
   const loadingTask = pdfjs.getDocument({
     // Copy bytes; pdf.js may transfer the underlying ArrayBuffer to its worker.
