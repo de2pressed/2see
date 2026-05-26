@@ -15,24 +15,18 @@ type PositionedTextItem = {
 };
 
 export async function extractPdfText(buffer: ArrayBuffer): Promise<PageBlock[]> {
-  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const pdfjs = await import("pdfjs-dist/build/pdf.mjs");
   
   // Explicitly set the worker source to the absolute path of pdf.worker.mjs
-  pdfjs.GlobalWorkerOptions.workerSrc = pathToFileURL(path.join(
-    process.cwd(),
-    "node_modules",
-    "pdfjs-dist",
-    "legacy",
-    "build",
-    "pdf.worker.mjs"
-  )).toString();
 
-  const loadingTask = pdfjs.getDocument({
-    // Copy bytes; pdf.js may transfer the underlying ArrayBuffer to its worker.
-    data: new Uint8Array(buffer.slice(0)),
-    disableFontFace: true,
-    useSystemFonts: true,
-  });
+
+const loadingTask = pdfjs.getDocument({
+  data: new Uint8Array(buffer.slice(0)),
+  disableFontFace: true,
+  useSystemFonts: false,
+  isEvalSupported: false,
+  useWorkerFetch: false,
+});
 
   const document = await loadingTask.promise;
   const pages: PageBlock[] = [];
