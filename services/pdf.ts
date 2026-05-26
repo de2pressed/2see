@@ -1,9 +1,14 @@
+import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
+
 import { TEXT_EXTRACTION_ERROR } from "@/utils/files";
 
 export interface PageBlock {
   pageNumber: number;
   text: string;
 }
+
+const pdfWorkerRequire = createRequire(import.meta.url);
 
 type PositionedTextItem = {
   str: string;
@@ -33,14 +38,14 @@ function polyfillBrowserAPIs(): void {
         }
       }
 
-      multiplySelf(other: DOMMatrixPolyfill) { return this; }
-      preMultiplySelf(other: DOMMatrixPolyfill) { return this; }
-      translateSelf(x: number, y: number) { return this; }
-      scaleSelf(x: number, y: number) { return this; }
+      multiplySelf(other: DOMMatrixPolyfill) { void other; return this; }
+      preMultiplySelf(other: DOMMatrixPolyfill) { void other; return this; }
+      translateSelf(x: number, y: number) { void x; void y; return this; }
+      scaleSelf(x: number, y: number) { void x; void y; return this; }
       invertSelf() { return this; }
-      translate(x: number, y: number) { return this; }
-      scale(x: number, y: number) { return this; }
-      rotateFromVectorSelf(x: number, y: number) { return this; }
+      translate(x: number, y: number) { void x; void y; return this; }
+      scale(x: number, y: number) { void x; void y; return this; }
+      rotateFromVectorSelf(x: number, y: number) { void x; void y; return this; }
     }
     (globalThis as unknown as Record<string, unknown>).DOMMatrix = DOMMatrixPolyfill;
   }
@@ -96,6 +101,7 @@ function polyfillBrowserAPIs(): void {
 export async function extractPdfText(buffer: ArrayBuffer): Promise<PageBlock[]> {
   polyfillBrowserAPIs();
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  configurePdfWorker(pdfjs);
 
   const loadingTask = pdfjs.getDocument({
     // Copy bytes; pdf.js may transfer the underlying ArrayBuffer to its worker.
@@ -124,6 +130,15 @@ export async function extractPdfText(buffer: ArrayBuffer): Promise<PageBlock[]> 
   }
 
   return pages;
+}
+
+function configurePdfWorker(pdfjs: typeof import("pdfjs-dist/legacy/build/pdf.mjs")): void {
+  try {
+    const workerPath = pdfWorkerRequire.resolve("pdfjs-dist/legacy/build/pdf.worker.mjs");
+    pdfjs.GlobalWorkerOptions.workerSrc = pathToFileURL(workerPath).toString();
+  } catch (error) {
+    console.warn("pdf.js worker resolution failed; falling back to pdfjs-dist default.", error);
+  }
 }
 
 function buildContextualPageText(items: unknown[]): string {
