@@ -696,8 +696,7 @@ export function VerificationApp() {
               Choose a model, upload a PDF, and watch the report build.
             </h2>
             <p className="mt-4 text-sm leading-7 text-muted-foreground">
-              Files are processed in memory. Groq API calls happen only inside
-              server-side API routes.
+              Instantly extract claims, cross-reference live sources, and verify the ground-truth accuracy of your documents.
             </p>
             <div className="mt-6 rounded-xl border border-border bg-card p-4 space-y-4">
               <div className="flex items-center justify-between border-b border-border pb-3">
