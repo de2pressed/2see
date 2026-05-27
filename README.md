@@ -91,10 +91,9 @@ cp .env.example .env
 |---|---|---|
 | `GROQ_API_KEY` | **Yes** | Groq API key for Llama model access. [Get one free →](https://console.groq.com/) |
 | `OPENAI_API_KEY` | No | Optional fallback if `GROQ_API_KEY` is not set |
-| `TAVILY_API_KEY` | No | Tavily search API for semantic evidence retrieval. [Get one →](https://tavily.com/) |
+| `TAVILY_API_KEY` | **Yes** | Tavily search API for semantic evidence retrieval. [Get one →](https://tavily.com/) |
 | `SERPER_API_KEY` | No | Serper API for Google search results. [Get one →](https://serper.dev/) |
-| `DISABLE_CLAIM_CACHE` | No | Set to `1` to disable filesystem-based claim caching |
-| `SEARCH_FIXTURES_DIR` | No | Path to a directory of pre-recorded search fixtures for testing |
+
 
 > **Minimum viable setup:** Only `GROQ_API_KEY` is required. Without Tavily or Serper, evidence retrieval falls back to Mojeek web scraping and the Wikipedia API.
 
