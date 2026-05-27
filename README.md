@@ -204,11 +204,7 @@ Each verified claim includes:
 ## Limitations
 
 - **Free-tier rate limits.** Groq's free tier has token-per-minute and request-per-minute caps. Batch sizes and delays are tuned for this, but large documents may hit throttling.
-- **No persistent storage.** Results exist only in the browser session. Closing the tab loses the report (export first).
 - **Image-based PDFs.** Text extraction requires selectable text. Scanned/image-only PDFs will fail with a clear error.
-- **Search coverage.** Verification quality depends on what's indexed and accessible to the configured search providers.
-- **Model knowledge cutoff.** Knowledge-based fallback verdicts (when search fails) are limited by the model's training data cutoff.
-- **Single-user.** Designed as a local or single-deployment tool. No auth, no multi-tenancy.
 
 ## Roadmap
 
