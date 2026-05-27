@@ -8,7 +8,7 @@ export async function GET() {
   const tavilyKey = process.env.TAVILY_API_KEY;
   const serperKey = process.env.SERPER_API_KEY;
 
-  let groqStatus = {
+  const groqStatus = {
     hasKey: false,
     isValid: false,
     error: null as string | null,
@@ -24,7 +24,7 @@ export async function GET() {
     } | null,
   };
 
-  let openaiStatus = {
+  const openaiStatus = {
     hasKey: false,
     isValid: false,
     error: null as string | null,
@@ -39,14 +39,14 @@ export async function GET() {
     } | null,
   };
 
-  let tavilyStatus = {
+  const tavilyStatus = {
     hasKey: false,
     isValid: false,
     error: null as string | null,
     label: null as string | null,
   };
 
-  let serperStatus = {
+  const serperStatus = {
     hasKey: false,
     isValid: false,
     error: null as string | null,

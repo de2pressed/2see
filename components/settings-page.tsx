@@ -69,7 +69,7 @@ export function SettingsPage() {
         tavily: data.tavily,
         serper: data.serper,
       });
-    } catch (err) {
+    } catch {
       setKeyStatus({
         loading: false,
       });

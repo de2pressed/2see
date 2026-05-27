@@ -14,7 +14,6 @@ import {
   Sparkles,
   StopCircle,
   Sun,
-  X,
   XCircle,
 } from "lucide-react";
 import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
@@ -1403,13 +1402,7 @@ function verdictVariant(verdict: Verdict) {
   return "unverifiable";
 }
 
-function scoreVariant(score: number | null) {
-  if (score === null) return "neutral";
-  if (score >= 85) return "verified";
-  if (score >= 70) return "high";
-  if (score >= 50) return "inaccurate";
-  return "falseVerdict";
-}
+
 
 function scoreTextColor(score: number | null) {
   if (score === null) return "text-muted-foreground";
