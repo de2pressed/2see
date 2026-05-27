@@ -10,15 +10,17 @@ import {
   Loader2,
   Moon,
   RefreshCw,
-  ShieldCheck,
+  Settings,
   Sparkles,
   StopCircle,
   Sun,
+  X,
   XCircle,
 } from "lucide-react";
 import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 
 import {
   ModelSelector,
@@ -151,49 +153,6 @@ export function VerificationApp() {
     }, 100);
   };
   const [dragActive, setDragActive] = useState(false);
-   const [keyStatus, setKeyStatus] = useState<{
-    loading: boolean;
-    hasKey: boolean;
-    isValid: boolean;
-    error?: string;
-    label?: string | null;
-    limit?: number | null;
-    usage?: number | null;
-    limitRemaining?: number | null;
-  }>({
-    loading: true,
-    hasKey: false,
-    isValid: false,
-  });
-
-  const checkApiKey = async () => {
-    setKeyStatus((prev) => ({ ...prev, loading: true }));
-    try {
-      const res = await fetch("/api/check-key");
-      const data = await res.json();
-      setKeyStatus({
-        loading: false,
-        hasKey: data.hasKey,
-        isValid: data.isValid,
-        error: data.error,
-        label: data.label,
-        limit: data.limit,
-        usage: data.usage,
-        limitRemaining: data.limitRemaining,
-      });
-    } catch (err) {
-      setKeyStatus({
-        loading: false,
-        hasKey: false,
-        isValid: false,
-        error: err instanceof Error ? err.message : "Failed to verify API key status.",
-      });
-    }
-  };
-
-  useEffect(() => {
-    checkApiKey();
-  }, []);
 
   const summary = useMemo(() => {
     const counts = {
@@ -251,10 +210,16 @@ export function VerificationApp() {
     setExtractData(null);
     setResults([]);
     setClaimStatuses({});
+
+    const autoVerify = window.localStorage.getItem("autoVerifyOnUpload") === "true";
+    if (autoVerify) {
+      analyzeDocument(nextFile);
+    }
   }
 
-  async function analyzeDocument() {
-    if (!file || isBusy) {
+  async function analyzeDocument(overrideFile?: File) {
+    const fileToUse = overrideFile || file;
+    if (!fileToUse || isBusy) {
       return;
     }
 
@@ -272,7 +237,7 @@ export function VerificationApp() {
     setMessage("Uploading PDF securely.");
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", fileToUse);
     formData.append("model", model);
 
     try {
@@ -669,7 +634,15 @@ export function VerificationApp() {
   return (
     <main className="min-h-screen overflow-hidden bg-background text-foreground flex flex-col relative">
       {mounted && (
-        <div className="absolute top-5 left-5 z-20">
+        <div className="absolute top-5 left-5 z-20 flex flex-col gap-3">
+          <Link
+            href="/settings"
+            className="text-muted-foreground hover:text-foreground transition-colors duration-200 focus:outline-none flex items-center justify-center p-1 rounded-md"
+            title="Open Settings"
+            aria-label="Open Settings"
+          >
+            <Settings className="h-4.5 w-4.5" />
+          </Link>
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="text-muted-foreground hover:text-foreground transition-colors duration-200 focus:outline-none flex items-center justify-center p-1 rounded-md"
@@ -699,97 +672,16 @@ export function VerificationApp() {
               Instantly extract claims, cross-reference live sources, and verify the ground-truth accuracy of your documents.
             </p>
             <div className="mt-6 rounded-xl border border-border bg-card p-4 space-y-4">
-              <div className="flex items-center justify-between border-b border-border pb-3">
-                <span className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                  <ShieldCheck className="h-4 w-4 text-muted-foreground" />
-                  Model & API Key
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-foreground">
+                  Choose your model
                 </span>
-                <div className="flex items-center gap-2">
-                  {keyStatus.loading ? (
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                      Checking...
-                    </span>
-                  ) : (
-                    <div className="flex items-center gap-1.5">
-                      {keyStatus.hasKey ? (
-                        keyStatus.isValid ? (
-                          <Badge variant="verified" className="text-[10px] py-0.5 px-1.5">
-                            Key Active
-                          </Badge>
-                        ) : (
-                          <Badge variant="inaccurate" className="text-[10px] py-0.5 px-1.5 cursor-help" title={keyStatus.error}>
-                            Key Error
-                          </Badge>
-                        )
-                      ) : (
-                        <Badge variant="falseVerdict" className="text-[10px] py-0.5 px-1.5">
-                          Key Missing
-                        </Badge>
-                      )}
-                      <button
-                        type="button"
-                        onClick={checkApiKey}
-                        title="Recheck API Key status"
-                        className="text-muted-foreground hover:text-foreground transition-colors p-0.5 rounded-md hover:bg-muted"
-                      >
-                        <RefreshCw className="h-3 w-3" />
-                      </button>
-                    </div>
-                  )}
-                </div>
               </div>
               <ModelSelector
                 value={model}
                 onChange={setModel}
                 disabled={isBusy}
               />
-              {!keyStatus.loading && keyStatus.hasKey && keyStatus.isValid && (
-                <div className="text-[11px] border border-border/60 bg-muted/40 rounded-lg p-2.5 space-y-1.5 mt-2 text-muted-foreground leading-normal">
-                  <span className="font-semibold block text-foreground border-b border-border pb-1 mb-1 text-[10px] uppercase tracking-wider">
-                    Key Usage & Quota
-                  </span>
-                  {keyStatus.label && (
-                    <div className="flex justify-between">
-                      <span>Label:</span>
-                      <span className="font-medium text-foreground truncate max-w-[140px]" title={keyStatus.label}>
-                        {keyStatus.label}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span>Usage:</span>
-                    <span className="font-medium text-foreground">
-                      {typeof keyStatus.usage === "number" ? `$${keyStatus.usage.toFixed(4)}` : (keyStatus.usage ?? "$0.0000")}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Limit:</span>
-                    <span className="font-medium text-foreground">
-                      {typeof keyStatus.limit === "number" ? `$${keyStatus.limit.toFixed(2)}` : (keyStatus.limit ?? "Unlimited")}
-                    </span>
-                  </div>
-                  {keyStatus.limitRemaining !== null && keyStatus.limitRemaining !== undefined && (
-                    <div className="flex justify-between border-t border-border pt-1 mt-1 font-semibold">
-                      <span>Remaining Limit:</span>
-                      <span className={typeof keyStatus.limitRemaining === "number" && keyStatus.limitRemaining <= 0 ? "text-red-500 font-bold" : "text-emerald-500 font-bold"}>
-                        {typeof keyStatus.limitRemaining === "number" ? `$${keyStatus.limitRemaining.toFixed(4)}` : keyStatus.limitRemaining}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
-              {!keyStatus.loading && keyStatus.hasKey && !keyStatus.isValid && keyStatus.error && (
-                <div className="text-[11px] text-red-500 bg-red-500/10 border border-red-500/20 rounded-md p-2 mt-2 leading-normal">
-                  <span className="font-semibold block mb-0.5">API Verification Error:</span>
-                  {keyStatus.error}
-                </div>
-              )}
-              {!keyStatus.loading && !keyStatus.hasKey && (
-                <div className="text-[11px] text-amber-600 bg-amber-500/10 border border-amber-500/20 rounded-md p-2 mt-2 leading-normal dark:text-amber-400">
-                  Please add <code className="bg-background px-1 py-0.5 rounded">GROQ_API_KEY</code> to your environment variables (.env file) to enable analysis.
-                </div>
-              )}
             </div>
           </aside>
 
@@ -896,9 +788,9 @@ export function VerificationApp() {
                           Stop
                         </Button>
                       ) : (
-                         <Button
+                          <Button
                           type="button"
-                          onClick={analyzeDocument}
+                          onClick={() => analyzeDocument()}
                           disabled={!file}
                           className="bg-emerald-950 hover:bg-emerald-900 text-emerald-50 border border-emerald-900/20 shadow-sm disabled:opacity-45 dark:bg-emerald-500 dark:hover:bg-emerald-400 dark:text-emerald-950 dark:border-transparent"
                         >
@@ -1004,7 +896,11 @@ export function VerificationApp() {
         </div>
       </section>
 
-      <div className="py-6 flex items-center justify-center border-t border-border/15 bg-background/30 backdrop-blur-sm">
+      <div className="py-6 flex items-center justify-center gap-4 border-t border-border/15 bg-background/30 backdrop-blur-sm select-none">
+        <span className="text-[10px] font-mono tracking-widest text-muted-foreground/60">
+          v1.00
+        </span>
+        <span className="h-3 w-[1px] bg-border/40" />
         <a
           href="https://github.com/de2pressed/2see"
           target="_blank"
