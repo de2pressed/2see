@@ -41,6 +41,7 @@ import {
   evidenceStrengthScore,
   hallucinationRiskScore,
 } from "@/utils/sources";
+import { calculateReportScore } from "@/utils/report-score";
 
 type Stage =
   | "idle"
@@ -1268,6 +1269,7 @@ function VerificationTimeline({
   onClaimClick: (claimId: string) => void;
 }) {
   const resultsMap = useMemo(() => new Map(results.map(r => [r.claim_id, r])), [results]);
+  const reportScore = useMemo(() => calculateReportScore(results), [results]);
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
@@ -1278,7 +1280,21 @@ function VerificationTimeline({
             {results.length} of {claims.length} claims completed.
           </p>
         </div>
-        <Badge variant="neutral">{Math.round((results.length / claims.length) * 100) || 0}%</Badge>
+        <Badge
+          variant={scoreVariant(reportScore)}
+          className="min-w-28 justify-center gap-1.5 font-semibold"
+        >
+          <span className="text-muted-foreground">Test score</span>
+          <motion.span
+            key={reportScore ?? "pending"}
+            initial={{ opacity: 0, y: -3 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18 }}
+            className="tabular-nums text-foreground"
+          >
+            {reportScore === null ? "--" : reportScore}/100
+          </motion.span>
+        </Badge>
       </div>
       <div className="mt-4 grid grid-cols-10 gap-1 sm:grid-cols-20">
         {claims.map((claim, index) => {
@@ -1463,6 +1479,14 @@ function verdictVariant(verdict: Verdict) {
   if (verdict === "Inaccurate") return "inaccurate";
   if (verdict === "False") return "falseVerdict";
   return "unverifiable";
+}
+
+function scoreVariant(score: number | null) {
+  if (score === null) return "neutral";
+  if (score >= 85) return "verified";
+  if (score >= 70) return "high";
+  if (score >= 50) return "inaccurate";
+  return "falseVerdict";
 }
 
 function formatStatusLabel(value: string): string {
