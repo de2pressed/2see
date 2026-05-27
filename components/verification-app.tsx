@@ -1280,21 +1280,24 @@ function VerificationTimeline({
             {results.length} of {claims.length} claims completed.
           </p>
         </div>
-        <Badge
-          variant={scoreVariant(reportScore)}
-          className="min-w-28 justify-center gap-1.5 font-semibold"
-        >
-          <span className="text-muted-foreground">Test score</span>
+        <div className="flex flex-col items-center text-center min-w-28 shrink-0 select-none">
           <motion.span
             key={reportScore ?? "pending"}
             initial={{ opacity: 0, y: -3 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.18 }}
-            className="tabular-nums text-foreground"
+            className={cn(
+              "text-3xl font-extrabold tracking-tight tabular-nums",
+              scoreTextColor(reportScore)
+            )}
           >
-            {reportScore === null ? "--" : reportScore}/100
+            {reportScore === null ? "--" : reportScore}
+            <span className="text-sm font-semibold text-muted-foreground/60">/100</span>
           </motion.span>
-        </Badge>
+          <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mt-0.5">
+            Trust Score
+          </span>
+        </div>
       </div>
       <div className="mt-4 grid grid-cols-10 gap-1 sm:grid-cols-20">
         {claims.map((claim, index) => {
@@ -1487,6 +1490,13 @@ function scoreVariant(score: number | null) {
   if (score >= 70) return "high";
   if (score >= 50) return "inaccurate";
   return "falseVerdict";
+}
+
+function scoreTextColor(score: number | null) {
+  if (score === null) return "text-muted-foreground";
+  if (score >= 70) return "text-emerald-700 dark:text-emerald-300";
+  if (score >= 50) return "text-amber-700 dark:text-amber-300";
+  return "text-red-700 dark:text-red-300";
 }
 
 function formatStatusLabel(value: string): string {
