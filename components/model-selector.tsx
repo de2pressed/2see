@@ -29,7 +29,7 @@ export function ModelSelector({
             className={cn(
               "flex min-h-20 items-start justify-between rounded-lg border p-3 text-left transition-all disabled:cursor-not-allowed disabled:opacity-50",
               isSelected
-                ? "border-emerald-900 bg-emerald-950 text-emerald-50 shadow-sm"
+                ? "border-emerald-900 bg-emerald-950 text-emerald-50 dark:bg-emerald-500 dark:text-emerald-950 dark:border-emerald-500 shadow-sm"
                 : "border-border bg-card text-foreground hover:bg-muted",
             )}
           >
@@ -37,7 +37,7 @@ export function ModelSelector({
               <span
                 className={cn(
                   "block text-sm font-semibold",
-                  isSelected ? "text-emerald-50" : "text-foreground",
+                  isSelected ? "text-emerald-50 dark:text-emerald-950" : "text-foreground",
                 )}
               >
                 {option.label}
@@ -45,14 +45,14 @@ export function ModelSelector({
               <span
                 className={cn(
                   "mt-1 block text-xs",
-                  isSelected ? "text-emerald-300/80" : "text-muted-foreground",
+                  isSelected ? "text-emerald-300/80 dark:text-emerald-950/80" : "text-muted-foreground",
                 )}
               >
                 {option.note}
               </span>
             </span>
             {isSelected ? (
-              <Check className="h-4 w-4 shrink-0 text-emerald-400" />
+              <Check className="h-4 w-4 shrink-0 text-emerald-400 dark:text-emerald-950" />
             ) : null}
           </button>
         );

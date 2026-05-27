@@ -8,13 +8,16 @@ import {
   FileJson,
   FilePlus2,
   Loader2,
+  Moon,
   RefreshCw,
   ShieldCheck,
   Sparkles,
   StopCircle,
+  Sun,
   XCircle,
 } from "lucide-react";
 import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
+import { useTheme } from "next-themes";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -103,6 +106,12 @@ const springTransition = {
 const VERIFY_CLAIMS_PER_REQUEST = 3;
 
 export function VerificationApp() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -658,10 +667,25 @@ export function VerificationApp() {
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-background text-foreground flex flex-col">
+    <main className="min-h-screen overflow-hidden bg-background text-foreground flex flex-col relative">
+      {mounted && (
+        <div className="absolute top-5 left-5 z-20">
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="text-muted-foreground hover:text-foreground transition-colors duration-200 focus:outline-none flex items-center justify-center p-1 rounded-md"
+            title="Toggle theme"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? (
+              <Sun className="h-4.5 w-4.5" />
+            ) : (
+              <Moon className="h-4.5 w-4.5" />
+            )}
+          </button>
+        </div>
+      )}
 
-
-      <section className="relative bg-[oklch(98.6%_0.006_115)] flex-grow">
+      <section className="relative bg-background flex-grow">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_20%,var(--ambient-a),transparent_34%),radial-gradient(circle_at_82%_10%,var(--ambient-b),transparent_28%)]" />
         <div className="mx-auto grid w-full max-w-7xl gap-8 px-5 pb-16 pt-10 sm:px-8 lg:grid-cols-[0.82fr_1.18fr] lg:pb-24 lg:pt-16">
           <aside className="lg:sticky lg:top-6 lg:self-start">
@@ -873,13 +897,13 @@ export function VerificationApp() {
                           Stop
                         </Button>
                       ) : (
-                        <Button
+                         <Button
                           type="button"
                           onClick={analyzeDocument}
                           disabled={!file}
-                          className="bg-emerald-950 hover:bg-emerald-900 text-emerald-50 border border-emerald-900/20 shadow-sm disabled:opacity-45"
+                          className="bg-emerald-950 hover:bg-emerald-900 text-emerald-50 border border-emerald-900/20 shadow-sm disabled:opacity-45 dark:bg-emerald-500 dark:hover:bg-emerald-400 dark:text-emerald-950 dark:border-transparent"
                         >
-                          <Sparkles className="h-4 w-4 text-emerald-50/80" />
+                          <Sparkles className="h-4 w-4 text-emerald-50/80 dark:text-emerald-950/80" />
                           Analyze
                         </Button>
                       )}
