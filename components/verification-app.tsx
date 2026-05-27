@@ -1287,14 +1287,14 @@ function VerificationTimeline({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.18 }}
             className={cn(
-              "text-3xl font-extrabold tracking-tight tabular-nums",
+              "text-5xl font-extrabold tracking-tight tabular-nums",
               scoreTextColor(reportScore)
             )}
           >
             {reportScore === null ? "--" : reportScore}
-            <span className="text-sm font-semibold text-muted-foreground/60">/100</span>
+            <span className="text-base font-semibold text-muted-foreground/60 align-super ml-0.5">/100</span>
           </motion.span>
-          <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mt-0.5">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80 mt-1">
             Trust Score
           </span>
         </div>
