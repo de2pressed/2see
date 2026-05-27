@@ -15,16 +15,16 @@ Reports, whitepapers, marketing documents, and AI-generated content all contain 
 ## How It Works
 
 ```mermaid
-flowchart LR
-    A[PDF Upload] --> B[Text Extraction]
-    B --> C[Claim Extraction]
-    C --> D[Materiality Scoring]
-    D --> E[Evidence Retrieval]
-    E --> F[Verdict Synthesis]
-    F --> G[Report Export]
+flowchart TD
+    A["📄 PDF Upload"] --> B["Text Extraction"]
+    B --> C["Claim Extraction"]
+    C --> D["Materiality Scoring"]
+    D --> E["Evidence Retrieval"]
+    E --> F["Verdict Synthesis"]
+    F --> G["📊 Report Export"]
 
-    style A fill:#f0f4ec,stroke:#5d6b56
-    style G fill:#f0f4ec,stroke:#5d6b56
+    classDef default fill:#2d3436,stroke:#636e72,stroke-width:1.5px,color:#dfe6e9,rx:8
+    linkStyle default stroke:#636e72,stroke-width:1.5px
 ```
 
 1. **PDF → Text** — Server-side extraction via `pdfjs-dist` with layout-aware line grouping and section heading detection.
