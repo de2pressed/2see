@@ -1272,90 +1272,90 @@ function VerificationTimeline({
   const reportScore = useMemo(() => calculateReportScore(results), [results]);
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
-      <div className="flex items-center justify-between gap-4">
+    <div className="rounded-2xl border border-border bg-card p-5 grid grid-cols-12 gap-6 items-center">
+      <div className="col-span-9 min-w-0">
         <div>
           <p className="text-sm font-semibold">Verification timeline</p>
           <p className="mt-1 text-sm text-muted-foreground">
             {results.length} of {claims.length} claims completed.
           </p>
         </div>
-        <div className="flex flex-col items-center text-center min-w-28 shrink-0 select-none">
-          <motion.span
-            key={reportScore ?? "pending"}
-            initial={{ opacity: 0, y: -3 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.18 }}
-            className={cn(
-              "text-5xl font-extrabold tracking-tight tabular-nums",
-              scoreTextColor(reportScore)
-            )}
-          >
-            {reportScore === null ? "--" : reportScore}
-            <span className="text-base font-semibold text-muted-foreground/60 align-super ml-0.5">/100</span>
-          </motion.span>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80 mt-1">
-            Trust Score
-          </span>
+        <div className="mt-4 grid grid-cols-10 gap-1 sm:grid-cols-20">
+          {claims.map((claim, index) => {
+            const result = resultsMap.get(claim.id);
+            const status = claimStatuses[claim.id] ?? "queued";
+
+            const isTransitioning = status.startsWith("transitioning-");
+            const targetVerdict = isTransitioning ? (status.replace("transitioning-", "") as Verdict) : null;
+
+            return (
+              <button
+                key={claim.id}
+                type="button"
+                onClick={() => onClaimClick(claim.id)}
+                title={
+                  result
+                    ? `Claim ${index + 1}: ${result.verdict}\n${claim.claim}`
+                    : `Claim ${index + 1}: ${status.charAt(0).toUpperCase() + status.slice(1)}\n${claim.claim}`
+                }
+                className={cn(
+                  "h-3 rounded-sm transition-all duration-1000 ease-out focus:outline-none focus:ring-1 focus:ring-ring relative overflow-hidden",
+                  "hover:scale-y-125 hover:brightness-110 cursor-pointer hover:shadow-[0_0_8px_rgba(16,185,129,0.3)] active:scale-95",
+                  
+                  // Base background colors
+                  status === "queued" && "bg-muted",
+                  status === "running" && "bg-emerald-500/20",
+                  status === "error" && "bg-rose-500",
+                  status === "done" && result?.verdict === "Verified" && "bg-emerald-500",
+                  status === "done" && result?.verdict === "Inaccurate" && "bg-amber-500",
+                  status === "done" && result?.verdict === "False" && "bg-red-500",
+                  status === "done" && result?.verdict === "Unverifiable" && "bg-slate-400",
+
+                  // Transitional backgrounds
+                  isTransitioning && targetVerdict === "Verified" && "bg-emerald-500/80",
+                  isTransitioning && targetVerdict === "Inaccurate" && "bg-amber-500/80",
+                  isTransitioning && targetVerdict === "False" && "bg-red-500/80",
+                  isTransitioning && targetVerdict === "Unverifiable" && "bg-slate-400/80",
+                )}
+              >
+                {/* Shimmer overlays */}
+                {status === "running" && (
+                  <div className="absolute inset-0 shimmer-overlay-running" />
+                )}
+                {isTransitioning && targetVerdict === "Verified" && (
+                  <div className="absolute inset-0 shimmer-overlay-verified" />
+                )}
+                {isTransitioning && targetVerdict === "Inaccurate" && (
+                  <div className="absolute inset-0 shimmer-overlay-inaccurate" />
+                )}
+                {isTransitioning && targetVerdict === "False" && (
+                  <div className="absolute inset-0 shimmer-overlay-false" />
+                )}
+                {isTransitioning && targetVerdict === "Unverifiable" && (
+                  <div className="absolute inset-0 shimmer-overlay-unverifiable" />
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
-      <div className="mt-4 grid grid-cols-10 gap-1 sm:grid-cols-20">
-        {claims.map((claim, index) => {
-          const result = resultsMap.get(claim.id);
-          const status = claimStatuses[claim.id] ?? "queued";
-
-          const isTransitioning = status.startsWith("transitioning-");
-          const targetVerdict = isTransitioning ? (status.replace("transitioning-", "") as Verdict) : null;
-
-          return (
-            <button
-              key={claim.id}
-              type="button"
-              onClick={() => onClaimClick(claim.id)}
-              title={
-                result
-                  ? `Claim ${index + 1}: ${result.verdict}\n${claim.claim}`
-                  : `Claim ${index + 1}: ${status.charAt(0).toUpperCase() + status.slice(1)}\n${claim.claim}`
-              }
-              className={cn(
-                "h-3 rounded-sm transition-all duration-1000 ease-out focus:outline-none focus:ring-1 focus:ring-ring relative overflow-hidden",
-                "hover:scale-y-125 hover:brightness-110 cursor-pointer hover:shadow-[0_0_8px_rgba(16,185,129,0.3)] active:scale-95",
-                
-                // Base background colors
-                status === "queued" && "bg-muted",
-                status === "running" && "bg-emerald-500/20",
-                status === "error" && "bg-rose-500",
-                status === "done" && result?.verdict === "Verified" && "bg-emerald-500",
-                status === "done" && result?.verdict === "Inaccurate" && "bg-amber-500",
-                status === "done" && result?.verdict === "False" && "bg-red-500",
-                status === "done" && result?.verdict === "Unverifiable" && "bg-slate-400",
-
-                // Transitional backgrounds
-                isTransitioning && targetVerdict === "Verified" && "bg-emerald-500/80",
-                isTransitioning && targetVerdict === "Inaccurate" && "bg-amber-500/80",
-                isTransitioning && targetVerdict === "False" && "bg-red-500/80",
-                isTransitioning && targetVerdict === "Unverifiable" && "bg-slate-400/80",
-              )}
-            >
-              {/* Shimmer overlays */}
-              {status === "running" && (
-                <div className="absolute inset-0 shimmer-overlay-running" />
-              )}
-              {isTransitioning && targetVerdict === "Verified" && (
-                <div className="absolute inset-0 shimmer-overlay-verified" />
-              )}
-              {isTransitioning && targetVerdict === "Inaccurate" && (
-                <div className="absolute inset-0 shimmer-overlay-inaccurate" />
-              )}
-              {isTransitioning && targetVerdict === "False" && (
-                <div className="absolute inset-0 shimmer-overlay-false" />
-              )}
-              {isTransitioning && targetVerdict === "Unverifiable" && (
-                <div className="absolute inset-0 shimmer-overlay-unverifiable" />
-              )}
-            </button>
-          );
-        })}
+      <div className="col-span-3 flex flex-col items-center justify-center text-center select-none pr-4">
+        <motion.span
+          key={reportScore ?? "pending"}
+          initial={{ opacity: 0, y: -3 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.18 }}
+          className={cn(
+            "text-5xl font-extrabold tracking-tight tabular-nums",
+            scoreTextColor(reportScore)
+          )}
+        >
+          {reportScore === null ? "--" : reportScore}
+          <span className="text-base font-semibold text-muted-foreground/60 align-super ml-0.5">/100</span>
+        </motion.span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80 mt-1">
+          Trust Score
+        </span>
       </div>
     </div>
   );
