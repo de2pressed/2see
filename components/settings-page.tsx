@@ -79,32 +79,34 @@ export function SettingsPage() {
   if (!mounted) return null;
 
   return (
-    <main className="min-h-screen overflow-y-auto bg-background text-foreground flex flex-col relative">
-      {/* Top Left Menu */}
-      <div className="absolute top-5 left-5 z-20 flex flex-col gap-3">
-        <Link
-          href="/"
-          className="text-muted-foreground hover:text-foreground transition-colors duration-200 focus:outline-none flex items-center justify-center p-1 rounded-md"
-          title="Back to App"
-          aria-label="Back to App"
-        >
-          <ArrowLeft className="h-4.5 w-4.5" />
-        </Link>
-        <button
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="text-muted-foreground hover:text-foreground transition-colors duration-200 focus:outline-none flex items-center justify-center p-1 rounded-md"
-          title="Toggle theme"
-          aria-label="Toggle theme"
-        >
-          {theme === "dark" ? (
-            <Sun className="h-4.5 w-4.5" />
-          ) : (
-            <Moon className="h-4.5 w-4.5" />
-          )}
-        </button>
+    <main className="min-h-screen bg-background text-foreground flex flex-col relative">
+      {/* Top Header Bar */}
+      <div className="w-full flex items-center justify-between px-5 pt-4 pb-0 sm:px-8 z-20">
+        <div className="flex items-center gap-2">
+          <Link
+            href="/"
+            className="text-muted-foreground hover:text-foreground transition-colors duration-200 focus:outline-none flex items-center justify-center p-1.5 rounded-md"
+            title="Back to App"
+            aria-label="Back to App"
+          >
+            <ArrowLeft className="h-4.5 w-4.5" />
+          </Link>
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="text-muted-foreground hover:text-foreground transition-colors duration-200 focus:outline-none flex items-center justify-center p-1.5 rounded-md"
+            title="Toggle theme"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? (
+              <Sun className="h-4.5 w-4.5" />
+            ) : (
+              <Moon className="h-4.5 w-4.5" />
+            )}
+          </button>
+        </div>
       </div>
 
-      <section className="relative bg-background flex-grow flex justify-center items-start pt-16 pb-20 px-5 sm:px-8">
+      <section className="relative bg-background flex-grow flex justify-center items-start pt-6 pb-20 px-5 sm:px-8">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_20%,var(--ambient-a),transparent_34%),radial-gradient(circle_at_82%_10%,var(--ambient-b),transparent_28%)]" />
         
         <div className="w-full max-w-2xl flex flex-col gap-6 mt-6">

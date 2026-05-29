@@ -631,35 +631,37 @@ export function VerificationApp() {
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-background text-foreground flex flex-col relative">
+    <main className="min-h-screen bg-background text-foreground flex flex-col relative">
       {mounted && (
-        <div className="absolute top-5 left-5 z-20 flex flex-col gap-3">
-          <Link
-            href="/settings"
-            className="text-muted-foreground hover:text-foreground transition-colors duration-200 focus:outline-none flex items-center justify-center p-1 rounded-md"
-            title="Open Settings"
-            aria-label="Open Settings"
-          >
-            <Settings className="h-4.5 w-4.5" />
-          </Link>
-          <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="text-muted-foreground hover:text-foreground transition-colors duration-200 focus:outline-none flex items-center justify-center p-1 rounded-md"
-            title="Toggle theme"
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? (
-              <Sun className="h-4.5 w-4.5" />
-            ) : (
-              <Moon className="h-4.5 w-4.5" />
-            )}
-          </button>
+        <div className="w-full flex items-center justify-between px-5 pt-4 pb-0 sm:px-8 z-20">
+          <div className="flex items-center gap-2">
+            <Link
+              href="/settings"
+              className="text-muted-foreground hover:text-foreground transition-colors duration-200 focus:outline-none flex items-center justify-center p-1.5 rounded-md"
+              title="Open Settings"
+              aria-label="Open Settings"
+            >
+              <Settings className="h-4.5 w-4.5" />
+            </Link>
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="text-muted-foreground hover:text-foreground transition-colors duration-200 focus:outline-none flex items-center justify-center p-1.5 rounded-md"
+              title="Toggle theme"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? (
+                <Sun className="h-4.5 w-4.5" />
+              ) : (
+                <Moon className="h-4.5 w-4.5" />
+              )}
+            </button>
+          </div>
         </div>
       )}
 
       <section className="relative bg-background flex-grow">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_20%,var(--ambient-a),transparent_34%),radial-gradient(circle_at_82%_10%,var(--ambient-b),transparent_28%)]" />
-        <div className="mx-auto grid w-full max-w-7xl gap-8 px-5 pb-16 pt-10 sm:px-8 lg:grid-cols-[0.82fr_1.18fr] lg:pb-24 lg:pt-16">
+        <div className="mx-auto grid w-full max-w-7xl gap-6 px-5 pb-16 pt-4 sm:px-8 sm:gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:pb-24 lg:pt-8">
           <aside className="lg:sticky lg:top-6 lg:self-start">
             <p className="text-sm font-bold font-mono text-muted-foreground tracking-wider">
               project 2see<span className="animate-pulse">_</span>
@@ -895,7 +897,7 @@ export function VerificationApp() {
         </div>
       </section>
 
-      <div className="py-6 flex items-center justify-center gap-4 border-t border-border/15 bg-background/30 backdrop-blur-sm select-none">
+      <div className="py-4 sm:py-6 flex items-center justify-center gap-4 border-t border-border/15 bg-background/30 backdrop-blur-sm select-none mt-auto">
         <span className="text-[10px] font-mono tracking-widest text-muted-foreground/60">
           v1.00
         </span>
@@ -944,7 +946,7 @@ function ResultsDashboard({
 }) {
   return (
     <div className="space-y-5">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
         <Metric label="Claims detected" value={extractData.totalClaimsFound} />
         <Metric label="Verified" value={summary.Verified} />
         <Metric label="Inaccurate" value={summary.Inaccurate} />
@@ -1190,15 +1192,15 @@ function VerificationTimeline({
   const reportScore = useMemo(() => calculateReportScore(results), [results]);
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 grid grid-cols-12 gap-6 items-center">
-      <div className="col-span-9 min-w-0">
+    <div className="rounded-2xl border border-border bg-card p-5 flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-6">
+      <div className="flex-1 min-w-0">
         <div>
           <p className="text-sm font-semibold">Verification timeline</p>
           <p className="mt-1 text-sm text-muted-foreground">
             {results.length} of {claims.length} claims completed.
           </p>
         </div>
-        <div className="mt-4 grid grid-cols-10 gap-1 sm:grid-cols-20">
+        <div className="mt-4 grid gap-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(12px, 1fr))' }}>
           {claims.map((claim, index) => {
             const result = resultsMap.get(claim.id);
             const status = claimStatuses[claim.id] ?? "queued";
@@ -1257,7 +1259,7 @@ function VerificationTimeline({
           })}
         </div>
       </div>
-      <div className="col-span-3 flex flex-col items-center justify-center text-center select-none pr-4">
+      <div className="flex flex-col items-center justify-center text-center select-none sm:pl-4 sm:border-l sm:border-border/40 sm:min-w-[120px]">
         <motion.span
           key={reportScore ?? "pending"}
           initial={{ opacity: 0, y: -3 }}
