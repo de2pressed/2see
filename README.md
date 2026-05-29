@@ -91,10 +91,9 @@ cp .env.example .env
 |---|---|---|
 | `GROQ_API_KEY` | **Yes** | Groq API key for Llama model access. [Get one free →](https://console.groq.com/) |
 | `OPENAI_API_KEY` | No | Optional fallback if `GROQ_API_KEY` is not set |
-| `TAVILY_API_KEY` | No | Tavily search API for semantic evidence retrieval. [Get one →](https://tavily.com/) |
+| `TAVILY_API_KEY` | **Yes** | Tavily search API for semantic evidence retrieval. [Get one →](https://tavily.com/) |
 | `SERPER_API_KEY` | No | Serper API for Google search results. [Get one →](https://serper.dev/) |
-| `DISABLE_CLAIM_CACHE` | No | Set to `1` to disable filesystem-based claim caching |
-| `SEARCH_FIXTURES_DIR` | No | Path to a directory of pre-recorded search fixtures for testing |
+
 
 > **Minimum viable setup:** Only `GROQ_API_KEY` is required. Without Tavily or Serper, evidence retrieval falls back to Mojeek web scraping and the Wikipedia API.
 
@@ -205,11 +204,7 @@ Each verified claim includes:
 ## Limitations
 
 - **Free-tier rate limits.** Groq's free tier has token-per-minute and request-per-minute caps. Batch sizes and delays are tuned for this, but large documents may hit throttling.
-- **No persistent storage.** Results exist only in the browser session. Closing the tab loses the report (export first).
 - **Image-based PDFs.** Text extraction requires selectable text. Scanned/image-only PDFs will fail with a clear error.
-- **Search coverage.** Verification quality depends on what's indexed and accessible to the configured search providers.
-- **Model knowledge cutoff.** Knowledge-based fallback verdicts (when search fails) are limited by the model's training data cutoff.
-- **Single-user.** Designed as a local or single-deployment tool. No auth, no multi-tenancy.
 
 ## Roadmap
 
